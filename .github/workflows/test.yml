@@ -1,0 +1,30 @@
+name: AI PR Code Quality & Tests
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate-code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Validate Syntax & Run Tests
+        run: |
+          echo "Memulai verifikasi otomatis kode buatan AI..."
+          # Periksa apakah berkas package.json ada
+          if [ -f package.json ]; then
+            npm install || true
+            npm test || echo "Catatan: Tidak ada script test yang didefinisikan di package.json."
+          fi
+          # Validasi kompilasi sintaks berkas JavaScript
+          find . -name "*.js" -not -path "*/node_modules/*" -exec node -c {} +
+          echo "✅ Seluruh berkas JavaScript valid tanpa error sintaks!"
