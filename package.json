@@ -1,0 +1,14 @@
+{
+  "name": "express-winston-logger",
+  "version": "1.0.0",
+  "description": "Simple logger module using Winston for Express",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "NODE_ENV=development node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "winston": "^3.12.0"
+  }
+}
