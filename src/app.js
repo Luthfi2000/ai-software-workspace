@@ -1,28 +1,37 @@
+require('dotenv').config();
 const express = require('express');
 const logger = require('./utils/logger');
 const requestLogger = require('./middleware/requestLogger');
+const { connectDB, closeDB } = require('./config/database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Gunakan middleware logger request
+// Inisialisasi Database
+connectDB();
+
+// Middleware
+app.use(express.json());
 app.use(requestLogger);
 
+// Base Route
 app.get('/', (req, res) => {
-  logger.debug('Menghandle rute root (/)');
-  res.send('Logger Module Express Berhasil Dijalankan!');
+  res.status(200).json({ status: 'success', message: 'API is running' });
 });
 
-app.get('/error', (req, res) => {
-  logger.error('Ini adalah simulasi log error');
-  res.status(500).send('Terjadi Kesalahan!');
+const server = app.listen(PORT, () => {
+  logger.info(`Server berjalan di port ${PORT}`);
 });
 
-app.get('/warning', (req, res) => {
-  logger.warn('Ini adalah simulasi log warning');
-  res.status(400).send('Peringatan: Request Kurang Tepat!');
-});
+// Penanganan graceful shutdown untuk proses OS (SIGINT / SIGTERM)
+const shutdown = async () => {
+  logger.info('Menerima sinyal terminasi, mematikan server secara graceful...');
+  server.close(async () => {
+    logger.info('HTTP server ditutup.');
+    await closeDB();
+    process.exit(0);
+  });
+};
 
-app.listen(PORT, () => {
-  logger.info(`Server berjalan di port ${PORT} dalam mode ${process.env.NODE_ENV || 'production'}`);
-});
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
